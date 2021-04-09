@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -51,6 +52,8 @@ public class Proposta {
 	
 	@Enumerated(EnumType.STRING)
 	private StatusProposta status;
+	@OneToOne
+	private Cartao cartao;
 
 	public Proposta() {
 	}
@@ -64,17 +67,6 @@ public class Proposta {
 		this.endereco = endereco;
 		this.salario = salario;
 		this.status = StatusProposta.NAO_ELEGIVEL;
-	}
-	
-	public Proposta(Proposta proposta, StatusProposta status) {
-		super();
-		this.id = proposta.getId();
-		this.documento = proposta.getDocumento();
-		this.email = proposta.getEmail();
-		this.nome = proposta.getNome();
-		this.endereco = proposta.getEndereco();
-		this.salario = proposta.getSalario();
-		this.status = status;
 	}
 
 	public Long getId() {
@@ -105,6 +97,15 @@ public class Proposta {
 		return status;
 	}
 	
+	public void adicionaCartaoValido(Cartao cartao) {
+		this.cartao = cartao;
+		cartaoElegivel();
+	}
+	
+	public void cartaoElegivel() {
+		this.status = StatusProposta.ELEGIVEL;
+
+	}
 	
 
 }
