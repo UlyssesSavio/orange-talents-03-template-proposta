@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.br.proposta.enumerator.StatusProposta;
+import com.br.proposta.interfaces.SolicitaRestricaoCartaoFeign;
 import com.br.proposta.model.Proposta;
+import com.br.proposta.model.SolicitaRestricaoCartao;
 import com.br.proposta.repository.PropostaRepository;
 import com.br.proposta.request.PropostaRequest;
+import com.br.proposta.request.SolicitaRestricaoCartaoRequest;
 import com.br.proposta.response.PropostaResponse;
 import com.br.proposta.validacoes.ApiErroException;
 
@@ -27,9 +30,12 @@ import com.br.proposta.validacoes.ApiErroException;
 public class PropostaController {
 
 	private PropostaRepository propostaRepository;
+	private SolicitaRestricaoCartaoFeign solicitaRestricaoCartaoFeign;
 
-	public PropostaController(PropostaRepository propostaRepository) {
+	public PropostaController(PropostaRepository propostaRepository,
+			SolicitaRestricaoCartaoFeign solicitaRestricaoCartaoFeign) {
 		this.propostaRepository = propostaRepository;
+		this.solicitaRestricaoCartaoFeign = solicitaRestricaoCartaoFeign;
 	}
 
 	@Transactional
@@ -42,6 +48,10 @@ public class PropostaController {
 		Optional<Proposta> existe = propostaRepository.findByDocumento(proposta.getDocumento());
 		if (existe.isPresent())
 			throw new ApiErroException(HttpStatus.UNPROCESSABLE_ENTITY, "Ja existe uma proposta para esse documento.");
+		propostaRepository.save(proposta);
+
+		proposta = validaRestricao(proposta);
+
 		propostaRepository.save(proposta);
 
 		URI uri = uriBuilder.path("/proposta/{id}").buildAndExpand(proposta.getId()).toUri();
@@ -57,6 +67,23 @@ public class PropostaController {
 			return ResponseEntity.ok(new PropostaResponse(proposta.get()));
 
 		return ResponseEntity.notFound().build();
+	}
+
+	private Proposta validaRestricao(Proposta proposta) {
+
+		SolicitaRestricaoCartaoRequest cartaoRequest = new SolicitaRestricaoCartaoRequest(proposta.getDocumento(),
+				proposta.getNome(), proposta.getId() + "");
+
+		try {
+			SolicitaRestricaoCartao restricao = solicitaRestricaoCartaoFeign.create(cartaoRequest);
+		} catch (ApiErroException e) {
+			if (e.getHttpStatus().equals(HttpStatus.UNPROCESSABLE_ENTITY))
+				return new Proposta(proposta, StatusProposta.NAO_ELEGIVEL);
+			else
+				throw e;
+		}
+
+		return new Proposta(proposta, StatusProposta.ELEGIVEL);
 	}
 
 }

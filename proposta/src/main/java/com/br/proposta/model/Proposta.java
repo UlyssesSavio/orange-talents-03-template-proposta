@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,6 +16,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
 import com.br.proposta.anotacoes.CpfCnpj;
+import com.br.proposta.enumerator.StatusProposta;
 
 @Entity
 public class Proposta {
@@ -45,6 +48,9 @@ public class Proposta {
 	@PositiveOrZero
 	@Column(nullable = false)
 	private BigDecimal salario;
+	
+	@Enumerated(EnumType.STRING)
+	private StatusProposta status;
 
 	public Proposta() {
 	}
@@ -57,6 +63,18 @@ public class Proposta {
 		this.nome = nome;
 		this.endereco = endereco;
 		this.salario = salario;
+		this.status = StatusProposta.NAO_ELEGIVEL;
+	}
+	
+	public Proposta(Proposta proposta, StatusProposta status) {
+		super();
+		this.id = proposta.getId();
+		this.documento = proposta.getDocumento();
+		this.email = proposta.getEmail();
+		this.nome = proposta.getNome();
+		this.endereco = proposta.getEndereco();
+		this.salario = proposta.getSalario();
+		this.status = status;
 	}
 
 	public Long getId() {
@@ -82,5 +100,11 @@ public class Proposta {
 	public BigDecimal getSalario() {
 		return salario;
 	}
+
+	public StatusProposta getStatus() {
+		return status;
+	}
+	
+	
 
 }

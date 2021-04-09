@@ -2,8 +2,7 @@ package com.br.proposta.response;
 
 import java.math.BigDecimal;
 
-
-
+import com.br.proposta.enumerator.StatusProposta;
 import com.br.proposta.model.Proposta;
 
 public class PropostaResponse {
@@ -19,6 +18,8 @@ public class PropostaResponse {
 
 	private BigDecimal salario;
 	
+	private StatusProposta status;
+	
 	
 	
 	public PropostaResponse() {}
@@ -29,6 +30,7 @@ public class PropostaResponse {
 		this.nome = proposta.getNome();
 		this.endereco = proposta.getEndereco();
 		this.salario = proposta.getSalario();
+		this.status = proposta.getStatus();
 	}
 
 
@@ -49,6 +51,10 @@ public class PropostaResponse {
 
 	public BigDecimal getSalario() {
 		return salario;
+	}
+
+	public StatusProposta getStatus() {
+		return status;
 	}
 	
 	
