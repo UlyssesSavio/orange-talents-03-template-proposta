@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import com.br.proposta.model.Proposta;
 import com.br.proposta.repository.PropostaRepository;
 import com.br.proposta.request.PropostaRequest;
 import com.br.proposta.response.PropostaResponse;
+import com.br.proposta.validacoes.ApiErroException;
 
 @RestController
 @RequestMapping("/proposta")
@@ -36,6 +38,10 @@ public class PropostaController {
 			UriComponentsBuilder uriBuilder) {
 
 		Proposta proposta = propostaRequest.converter();
+
+		Optional<Proposta> existe = propostaRepository.findByDocumento(proposta.getDocumento());
+		if (existe.isPresent())
+			throw new ApiErroException(HttpStatus.UNPROCESSABLE_ENTITY, "Ja existe uma proposta para esse documento.");
 		propostaRepository.save(proposta);
 
 		URI uri = uriBuilder.path("/proposta/{id}").buildAndExpand(proposta.getId()).toUri();
