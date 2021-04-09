@@ -68,6 +68,7 @@ public class PropostaController {
 		return ResponseEntity.created(uri).body(new PropostaResponse(proposta));
 	}
 
+	//Metodo get de retorno de proposta
 	@GetMapping("/{id}")
 	private ResponseEntity<PropostaResponse> detalhar(@PathVariable Long id) {
 
@@ -114,7 +115,6 @@ public class PropostaController {
 
 			propostaRepository.save(pro);
 		} catch (ApiErroException e) {
-			throw e;
 		}
 
 	}
