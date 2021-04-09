@@ -1,0 +1,33 @@
+version: '3'
+services:
+  db:
+    container_name: mariadb
+    image: mariadb
+    volumes:
+      - mariavolume
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - '3306:3306'
+    networks:
+      - rede-maria
+
+  proposta:
+    build:  ./
+    ports:
+      - '8080:8080'
+    networks:
+      - rede-maria
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/mysql-mariadb?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SERVICE_FEIGN_ENDERECO: db
+
+volumes:
+  mariavolume:
+
+networks:
+  rede-maria:

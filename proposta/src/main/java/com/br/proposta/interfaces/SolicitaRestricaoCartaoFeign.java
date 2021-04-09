@@ -9,8 +9,9 @@ import com.br.proposta.request.SolicitaRestricaoCartaoRequest;
 
 
 
-@FeignClient(name= "solicitaRestricaoCartaoFeign", url = "http://localhost:9999/")
+@FeignClient(name= "solicitaRestricaoCartaoFeign", url = "http://${endereco.restricao}:9999/")
 public interface SolicitaRestricaoCartaoFeign {
+	
 
 	@RequestMapping(method = RequestMethod.POST, value = "/api/solicitacao",consumes = "application/json")
 	SolicitaRestricaoCartao create(SolicitaRestricaoCartaoRequest request);

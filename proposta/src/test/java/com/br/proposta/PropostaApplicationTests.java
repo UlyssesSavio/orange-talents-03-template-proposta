@@ -3,10 +3,10 @@ package com.br.proposta;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+//@SpringBootTest
 class PropostaApplicationTests {
 
-	@Test
+//	@Test
 	void contextLoads() {
 	}
 

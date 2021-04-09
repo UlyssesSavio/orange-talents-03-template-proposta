@@ -9,7 +9,7 @@ import com.br.proposta.model.CartaoSolicitado;
 
 
 
-@FeignClient(name= "CartaoServiceFeign", url = "http://localhost:8888/")
+@FeignClient(name= "CartaoServiceFeign", url = "http://${endereco.cartao}:8888/")
 public interface CartaoServiceFeign {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/api/cartoes")
