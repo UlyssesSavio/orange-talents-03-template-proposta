@@ -9,8 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
+
+
 
 @RestControllerAdvice
 public class MeuHandlerAdvice {
@@ -28,6 +33,26 @@ public class MeuHandlerAdvice {
         ErroPadronizado erroPadronizado = new ErroPadronizado(mensagens);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erroPadronizado);
     }
+    
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(value = { IllegalStateException.class })
+	public ErroPadronizado handleIlegal(IllegalStateException exception) {
+
+    	ErroPadronizado response = new ErroPadronizado(exception.getMessage());
+		
+
+		return response;
+	}
+    
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(value = { MissingServletRequestParameterException.class })
+	public ErroPadronizado handleMissing(MissingServletRequestParameterException exception) {
+
+    	ErroPadronizado response = new ErroPadronizado(exception.getMessage());
+		
+
+		return response;
+	}
     
     @ExceptionHandler(ApiErroException.class)
     public ResponseEntity<ErroPadronizado> handleApiErroException(ApiErroException apiErroException) {

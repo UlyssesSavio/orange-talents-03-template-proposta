@@ -106,9 +106,10 @@ public class PropostaController {
 	private void validaProposta(Proposta pro) {
 
 		try {
-			CartaoSolicitado cartaoS = cartaoServiceFeign.busca(pro.getId());
+			CartaoSolicitado cartaoS = cartaoServiceFeign.findByIdProposta(pro.getId());
 			Cartao cartao = cartaoS.toCartao();
 
+			System.out.println("Cartao id "+cartao.getNumeroCartao());
 			cartaoRepository.save(cartao);
 
 			pro.adicionaCartaoValido(cartao);
