@@ -3,6 +3,7 @@ package com.br.proposta.controller;
 import java.net.URI;
 import java.util.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
@@ -33,7 +34,6 @@ public class BiometriaController {
 	private CartaoRepository cartaoRepository;
 
 	public BiometriaController(BiometriaRepository biometriaRepository, CartaoRepository cartaoRepository) {
-		super();
 		this.biometriaRepository = biometriaRepository;
 		this.cartaoRepository = cartaoRepository;
 	}
@@ -54,6 +54,7 @@ public class BiometriaController {
 	}
 	
 	@GetMapping("/{id}")
+	@RolesAllowed("user")
 	private ResponseEntity<BiometriaResponse> detalhar(@PathVariable Long id) {
 
 		Optional<Biometria> biometria = biometriaRepository.findById(id);
@@ -61,6 +62,12 @@ public class BiometriaController {
 			return ResponseEntity.ok(new BiometriaResponse(biometria.get()));
 
 		return ResponseEntity.notFound().build();
+	}
+	@GetMapping("/teste")
+	@RolesAllowed("user")
+	private String teste() {
+		System.out.println("\n\nentrou\n\n");
+		return "entrou aqui";
 	}
 
 }
