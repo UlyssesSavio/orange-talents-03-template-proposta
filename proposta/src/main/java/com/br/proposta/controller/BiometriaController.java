@@ -54,7 +54,6 @@ public class BiometriaController {
 	}
 	
 	@GetMapping("/{id}")
-	@RolesAllowed("user")
 	private ResponseEntity<BiometriaResponse> detalhar(@PathVariable Long id) {
 
 		Optional<Biometria> biometria = biometriaRepository.findById(id);
@@ -64,7 +63,6 @@ public class BiometriaController {
 		return ResponseEntity.notFound().build();
 	}
 	@GetMapping("/teste")
-	@RolesAllowed("user")
 	private String teste() {
 		System.out.println("\n\nentrou\n\n");
 		return "entrou aqui";

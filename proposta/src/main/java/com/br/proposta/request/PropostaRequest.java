@@ -7,6 +7,7 @@ import javax.persistence.Lob;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.PositiveOrZero;
 
 import com.br.proposta.anotacoes.CpfCnpj;
@@ -73,6 +74,9 @@ public class PropostaRequest {
 	}
 
 	public Proposta converter() {
+		
+		documento = documento.replaceAll("[^0-9]+", "");
+		
 		return new Proposta(documento, email, nome, endereco, salario);
 	}
 
