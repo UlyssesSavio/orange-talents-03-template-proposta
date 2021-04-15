@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,11 +16,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.br.proposta.enumerator.StatusCartao;
+import com.br.proposta.interfaces.CartaoServiceFeign;
 import com.br.proposta.model.Cartao;
 import com.br.proposta.model.CartaoBloqueio;
 import com.br.proposta.repository.CartaoBloqueadoRepository;
 import com.br.proposta.repository.CartaoRepository;
+import com.br.proposta.request.CartaoBloqueioRequest;
 import com.br.proposta.response.CartaoBloqueioResponse;
+import com.br.proposta.response.RespostaCartao;
+import com.br.proposta.validacoes.ApiErroException;
 
 @RestController
 @RequestMapping("/cartao")
@@ -28,21 +34,26 @@ public class CartaoController {
 	
 	private CartaoRepository cartaoRepository;
 	private CartaoBloqueadoRepository cartaoBloqueadoRepository;
+	private CartaoServiceFeign cartaoServiceFeign;
 	
 	
 	
 	
-	public CartaoController(CartaoRepository cartaoRepository, CartaoBloqueadoRepository cartaoBloqueadoRepository) {
+
+
+
+
+	public CartaoController(CartaoRepository cartaoRepository, CartaoBloqueadoRepository cartaoBloqueadoRepository,
+			CartaoServiceFeign cartaoServiceFeign) {
 		this.cartaoRepository = cartaoRepository;
 		this.cartaoBloqueadoRepository = cartaoBloqueadoRepository;
+		this.cartaoServiceFeign = cartaoServiceFeign;
 	}
-
-
-
 
 	@Transactional
 	@PostMapping("/bloqueio")
 	private ResponseEntity<CartaoBloqueioResponse> cadastrar(@RequestParam String id, UriComponentsBuilder uriBuilder, HttpServletRequest request){
+		
 		
 		if(!cartaoRepository.existsByNumeroCartao(id)) {
 			return ResponseEntity.notFound().build();
@@ -56,7 +67,16 @@ public class CartaoController {
 		
 		CartaoBloqueio cartaoBloqueio = new CartaoBloqueio(cartao, request.getRemoteAddr(), request.getHeader("User-Agent"));
 		
+		try {
+		CartaoBloqueioRequest cartaoBloqueioRequest = new CartaoBloqueioRequest("proposta");	
+		RespostaCartao bloqueia = cartaoServiceFeign.bloqueia(id, cartaoBloqueioRequest);
+		}catch (Exception e) {
+			throw new ApiErroException(HttpStatus.BAD_REQUEST, e.getMessage()); 
+		}
+		
+		alteraEstadoCartao(StatusCartao.BLOQUEADO, cartao);
 		cartaoBloqueadoRepository.save(cartaoBloqueio);
+		
 		
 		URI uri = uriBuilder.path("/cartao/bloqueio/{id}").buildAndExpand(cartaoBloqueio.getId()).toUri();
 		
@@ -70,4 +90,11 @@ public class CartaoController {
 			return ResponseEntity.ok(new CartaoBloqueioResponse(cartao.get()));
 		return ResponseEntity.notFound().build();
 	}
+	
+	private void alteraEstadoCartao(StatusCartao status, Cartao cartao) {
+		cartao = new Cartao(cartao, status);
+		cartaoRepository.save(cartao);
+	}
+	
+	
 }
