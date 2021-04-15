@@ -48,7 +48,6 @@ public class PropostaController {
 		this.cartaoServiceFeign = cartaoServiceFeign;
 	}
 
-	@Transactional
 	@PostMapping
 	private ResponseEntity<PropostaResponse> cadastrar(@RequestBody @Valid PropostaRequest propostaRequest,
 			UriComponentsBuilder uriBuilder) {
@@ -62,13 +61,22 @@ public class PropostaController {
 		propostaRepository.save(proposta);
 		proposta = validaRestricao(proposta);
 		propostaRepository.save(proposta);
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			System.out.print("\n\n\n interrompido \n\n\n");
+			e.printStackTrace();
+		}
+
+		validaProposta(proposta);
+		System.out.println("\n5");
 
 		URI uri = uriBuilder.path("/proposta/{id}").buildAndExpand(proposta.getId()).toUri();
 
 		return ResponseEntity.created(uri).body(new PropostaResponse(proposta));
 	}
 
-	//Metodo get de retorno de proposta
+	// Metodo get de retorno de proposta
 	@GetMapping("/{id}")
 	private ResponseEntity<PropostaResponse> detalhar(@PathVariable Long id) {
 
@@ -86,6 +94,7 @@ public class PropostaController {
 
 		try {
 			SolicitaRestricaoCartao restricao = solicitaRestricaoCartaoFeign.create(cartaoRequest);
+
 		} catch (ApiErroException e) {
 			if (e.getHttpStatus().equals(HttpStatus.UNPROCESSABLE_ENTITY))
 				return proposta;
@@ -102,14 +111,14 @@ public class PropostaController {
 		propostasNaoLegiveis.forEach(proposta -> validaProposta(proposta));
 	}
 
-	@Transactional
+
 	private void validaProposta(Proposta pro) {
 
 		try {
+
 			CartaoSolicitado cartaoS = cartaoServiceFeign.findByIdProposta(pro.getId());
 			Cartao cartao = cartaoS.toCartao();
 
-			System.out.println("Cartao id "+cartao.getNumeroCartao());
 			cartaoRepository.save(cartao);
 
 			pro.adicionaCartaoValido(cartao);

@@ -3,10 +3,12 @@ package com.br.proposta.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.br.proposta.model.Cartao;
-import com.br.proposta.model.CartaoSolicitado;
+
 
 public interface CartaoRepository  extends JpaRepository<Cartao, Long>{
 
 	Cartao findByNumeroCartao(String id);
+	boolean existsByNumeroCartao(String numeroCartao);
+
 
 }

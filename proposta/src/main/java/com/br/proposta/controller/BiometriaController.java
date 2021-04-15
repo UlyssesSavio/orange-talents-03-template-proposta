@@ -62,10 +62,6 @@ public class BiometriaController {
 
 		return ResponseEntity.notFound().build();
 	}
-	@GetMapping("/teste")
-	private String teste() {
-		System.out.println("\n\nentrou\n\n");
-		return "entrou aqui";
-	}
+	
 
 }
