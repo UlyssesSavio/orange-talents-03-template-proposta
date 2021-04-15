@@ -50,6 +50,8 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter
         .antMatchers("/proposta**").hasRole("admin")
         .antMatchers("/biometria**").hasRole("admin")
         .antMatchers("/cartao**").hasRole("admin")
+        .antMatchers("/viagem**").hasRole("admin")
+
         .anyRequest().permitAll() ;
     }
 }
