@@ -67,16 +67,7 @@ public class PropostaController {
 		propostaRepository.save(proposta);
 		proposta = validaRestricao(proposta);
 		propostaRepository.save(proposta);
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			System.out.print("\n\n\n interrompido \n\n\n");
-			e.printStackTrace();
-		}
-
-		validaProposta(proposta);
-		System.out.println("\n5");
-
+	
 		URI uri = uriBuilder.path("/proposta/{id}").buildAndExpand(proposta.getId()).toUri();
 
 		compositeCounter.increment();
@@ -115,7 +106,7 @@ public class PropostaController {
 
 	@Scheduled(fixedDelay = 5000)
 	private void verificaCartaoPeriodicamente() {
-		List<Proposta> propostasNaoLegiveis = propostaRepository.findAllByStatus(StatusProposta.NAO_ELEGIVEL);
+		List<Proposta> propostasNaoLegiveis = propostaRepository.findAllByStatusAndCartao(StatusProposta.ELEGIVEL, null);
 		propostasNaoLegiveis.forEach(proposta -> validaProposta(proposta));
 	}
 

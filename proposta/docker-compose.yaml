@@ -43,6 +43,7 @@ services:
   keycloak:
     image: jboss/keycloak
     container_name: keycloak
+    restart: on-failure
     networks:
       - rede-spring
     ports:
