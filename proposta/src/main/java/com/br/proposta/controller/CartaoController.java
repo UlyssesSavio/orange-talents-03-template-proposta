@@ -27,6 +27,9 @@ import com.br.proposta.response.CartaoBloqueioResponse;
 import com.br.proposta.response.RespostaCartao;
 import com.br.proposta.validacoes.ApiErroException;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+
 @RestController
 @RequestMapping("/cartao")
 public class CartaoController {
@@ -38,7 +41,9 @@ public class CartaoController {
 	
 	
 	
-	
+	CompositeMeterRegistry composite = new CompositeMeterRegistry();
+
+	Counter compositeCounter = composite.counter("cartao");
 
 
 
@@ -80,6 +85,7 @@ public class CartaoController {
 		
 		URI uri = uriBuilder.path("/cartao/bloqueio/{id}").buildAndExpand(cartaoBloqueio.getId()).toUri();
 		
+		compositeCounter.increment();
 		return ResponseEntity.created(uri).body(new CartaoBloqueioResponse(cartaoBloqueio));
 	}
 	

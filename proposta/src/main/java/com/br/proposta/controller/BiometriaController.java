@@ -3,7 +3,6 @@ package com.br.proposta.controller;
 import java.net.URI;
 import java.util.Optional;
 
-import javax.annotation.security.RolesAllowed;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
@@ -26,13 +25,21 @@ import com.br.proposta.request.BiometriaRequest;
 import com.br.proposta.response.BiometriaResponse;
 import com.br.proposta.validacoes.ApiErroException;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+
+
 @RestController
 @RequestMapping("/biometria")
 public class BiometriaController {
 
 	private BiometriaRepository biometriaRepository;
 	private CartaoRepository cartaoRepository;
+	
+	CompositeMeterRegistry composite = new CompositeMeterRegistry();
 
+	Counter compositeCounter = composite.counter("biometria");
+	
 	public BiometriaController(BiometriaRepository biometriaRepository, CartaoRepository cartaoRepository) {
 		this.biometriaRepository = biometriaRepository;
 		this.cartaoRepository = cartaoRepository;
@@ -50,6 +57,7 @@ public class BiometriaController {
 		
 		BiometriaResponse bioRes = new BiometriaResponse(biometria);
 		URI uri = uriBuilder.path("/biometria/{id}").buildAndExpand(biometria.getId()).toUri();
+		compositeCounter.increment();
 		return ResponseEntity.created(uri).body(bioRes);
 	}
 	

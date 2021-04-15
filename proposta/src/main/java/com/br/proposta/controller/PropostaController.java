@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +30,9 @@ import com.br.proposta.request.SolicitaRestricaoCartaoRequest;
 import com.br.proposta.response.PropostaResponse;
 import com.br.proposta.validacoes.ApiErroException;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+
 @RestController
 @RequestMapping("/proposta")
 public class PropostaController {
@@ -39,6 +41,10 @@ public class PropostaController {
 	private CartaoRepository cartaoRepository;
 	private SolicitaRestricaoCartaoFeign solicitaRestricaoCartaoFeign;
 	private CartaoServiceFeign cartaoServiceFeign;
+	
+	CompositeMeterRegistry composite = new CompositeMeterRegistry();
+
+	Counter compositeCounter = composite.counter("proposta");
 
 	public PropostaController(PropostaRepository propostaRepository, CartaoRepository cartaoRepository,
 			SolicitaRestricaoCartaoFeign solicitaRestricaoCartaoFeign, CartaoServiceFeign cartaoServiceFeign) {
@@ -73,6 +79,8 @@ public class PropostaController {
 
 		URI uri = uriBuilder.path("/proposta/{id}").buildAndExpand(proposta.getId()).toUri();
 
+		compositeCounter.increment();
+		
 		return ResponseEntity.created(uri).body(new PropostaResponse(proposta));
 	}
 

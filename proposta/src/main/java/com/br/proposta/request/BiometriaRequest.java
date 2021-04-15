@@ -1,6 +1,5 @@
 package com.br.proposta.request;
 
-import java.util.Base64;
 
 import javax.validation.constraints.NotNull;
 

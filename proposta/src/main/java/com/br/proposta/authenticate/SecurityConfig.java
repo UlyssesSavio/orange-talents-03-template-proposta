@@ -7,9 +7,7 @@ import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurer
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -49,7 +47,9 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter
         .csrf()
         .disable()
         .authorizeRequests()
-        .antMatchers("/**").hasRole("admin")
+        .antMatchers("/proposta**").hasRole("admin")
+        .antMatchers("/biometria**").hasRole("admin")
+        .antMatchers("/cartao**").hasRole("admin")
         .anyRequest().permitAll() ;
     }
 }
