@@ -36,9 +36,8 @@ public class BiometriaController {
 	private BiometriaRepository biometriaRepository;
 	private CartaoRepository cartaoRepository;
 	
-	CompositeMeterRegistry composite = new CompositeMeterRegistry();
-
-	Counter compositeCounter = composite.counter("biometria");
+	private CompositeMeterRegistry composite = new CompositeMeterRegistry();
+	private Counter compositeCounter = composite.counter("biometria");
 	
 	public BiometriaController(BiometriaRepository biometriaRepository, CartaoRepository cartaoRepository) {
 		this.biometriaRepository = biometriaRepository;

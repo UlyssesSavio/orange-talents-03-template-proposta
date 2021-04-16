@@ -17,7 +17,7 @@ public class FeignErrorDecoder implements ErrorDecoder {
 		case 422:
 			throw new ApiErroException(HttpStatus.UNPROCESSABLE_ENTITY, "Cartao com restricao");
 		default :
-			throw new ApiErroException(HttpStatus.valueOf(response.status()), response.reason());
+			throw new ApiErroException(HttpStatus.BAD_REQUEST, "Erro interno da outra api.");
 		
 		}
 		

@@ -42,9 +42,8 @@ public class PropostaController {
 	private SolicitaRestricaoCartaoFeign solicitaRestricaoCartaoFeign;
 	private CartaoServiceFeign cartaoServiceFeign;
 	
-	CompositeMeterRegistry composite = new CompositeMeterRegistry();
-
-	Counter compositeCounter = composite.counter("proposta");
+	private CompositeMeterRegistry composite = new CompositeMeterRegistry();
+	private Counter compositeCounter = composite.counter("proposta");
 
 	public PropostaController(PropostaRepository propostaRepository, CartaoRepository cartaoRepository,
 			SolicitaRestricaoCartaoFeign solicitaRestricaoCartaoFeign, CartaoServiceFeign cartaoServiceFeign) {

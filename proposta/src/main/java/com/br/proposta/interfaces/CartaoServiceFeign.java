@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.br.proposta.model.CartaoSolicitado;
 import com.br.proposta.request.AvisoViagemRequest;
 import com.br.proposta.request.CartaoBloqueioRequest;
+import com.br.proposta.request.CarteiraDigitalRequest;
+import com.br.proposta.response.CarteiraDigitalResponseFeign;
 import com.br.proposta.response.RespostaCartao;
 
 
@@ -28,5 +30,9 @@ public interface CartaoServiceFeign {
 	@RequestMapping(method = RequestMethod.POST, value = "/api/cartoes/{id}/avisos",consumes = "application/json")
 	RespostaCartao avisos(@PathVariable String id, AvisoViagemRequest avisoViagemRequest);
 	
-
+	@RequestMapping(method = RequestMethod.POST, value = "/api/cartoes/{id}/carteiras",consumes = "application/json")
+	CarteiraDigitalResponseFeign carteiraDigital(@PathVariable String id, CarteiraDigitalRequest carteiraDigitalRequest);
+	
+	
+	
 }

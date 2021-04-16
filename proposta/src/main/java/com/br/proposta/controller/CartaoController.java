@@ -34,19 +34,12 @@ import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
 @RequestMapping("/cartao")
 public class CartaoController {
 
-	
 	private CartaoRepository cartaoRepository;
 	private CartaoBloqueadoRepository cartaoBloqueadoRepository;
 	private CartaoServiceFeign cartaoServiceFeign;
-	
-	
-	
-	CompositeMeterRegistry composite = new CompositeMeterRegistry();
 
-	Counter compositeCounter = composite.counter("cartao");
-
-
-
+	private CompositeMeterRegistry composite = new CompositeMeterRegistry();
+	private Counter compositeCounter = composite.counter("cartao");
 
 	public CartaoController(CartaoRepository cartaoRepository, CartaoBloqueadoRepository cartaoBloqueadoRepository,
 			CartaoServiceFeign cartaoServiceFeign) {
@@ -57,50 +50,45 @@ public class CartaoController {
 
 	@Transactional
 	@PostMapping("/bloqueio")
-	private ResponseEntity<CartaoBloqueioResponse> cadastrar(@RequestParam String id, UriComponentsBuilder uriBuilder, HttpServletRequest request){
-		
-		
-		if(!cartaoRepository.existsByNumeroCartao(id)) {
+	private ResponseEntity<CartaoBloqueioResponse> cadastrar(@RequestParam String id, UriComponentsBuilder uriBuilder,
+			HttpServletRequest request) {
+
+		if (!cartaoRepository.existsByNumeroCartao(id)) {
 			return ResponseEntity.notFound().build();
 		}
-		
+
 		Cartao cartao = cartaoRepository.findByNumeroCartao(id);
-		
-		if(cartaoBloqueadoRepository.existsByCartao(cartao)) {
+
+		if (cartaoBloqueadoRepository.existsByCartao(cartao)) {
 			return ResponseEntity.unprocessableEntity().build();
 		}
-		
-		CartaoBloqueio cartaoBloqueio = new CartaoBloqueio(cartao, request.getRemoteAddr(), request.getHeader("User-Agent"));
-		
-		try {
-		CartaoBloqueioRequest cartaoBloqueioRequest = new CartaoBloqueioRequest("proposta");	
+
+		CartaoBloqueio cartaoBloqueio = new CartaoBloqueio(cartao, request.getRemoteAddr(),
+				request.getHeader("User-Agent"));
+
+		CartaoBloqueioRequest cartaoBloqueioRequest = new CartaoBloqueioRequest("proposta");
 		RespostaCartao bloqueia = cartaoServiceFeign.bloqueia(id, cartaoBloqueioRequest);
-		}catch (Exception e) {
-			throw new ApiErroException(HttpStatus.BAD_REQUEST, e.getMessage()); 
-		}
-		
+
 		alteraEstadoCartao(StatusCartao.BLOQUEADO, cartao);
 		cartaoBloqueadoRepository.save(cartaoBloqueio);
-		
-		
+
 		URI uri = uriBuilder.path("/cartao/bloqueio/{id}").buildAndExpand(cartaoBloqueio.getId()).toUri();
-		
+
 		compositeCounter.increment();
 		return ResponseEntity.created(uri).body(new CartaoBloqueioResponse(cartaoBloqueio));
 	}
-	
+
 	@GetMapping("/bloqueio/{id}")
-	private ResponseEntity<CartaoBloqueioResponse> busca(@PathVariable Long id){
+	private ResponseEntity<CartaoBloqueioResponse> busca(@PathVariable Long id) {
 		Optional<CartaoBloqueio> cartao = cartaoBloqueadoRepository.findById(id);
-		if(cartao.isPresent())
+		if (cartao.isPresent())
 			return ResponseEntity.ok(new CartaoBloqueioResponse(cartao.get()));
 		return ResponseEntity.notFound().build();
 	}
-	
+
 	private void alteraEstadoCartao(StatusCartao status, Cartao cartao) {
 		cartao = new Cartao(cartao, status);
 		cartaoRepository.save(cartao);
 	}
-	
-	
+
 }

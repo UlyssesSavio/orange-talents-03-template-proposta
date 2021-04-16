@@ -24,6 +24,9 @@ import com.br.proposta.response.RespostaCartao;
 import com.br.proposta.response.ViagemResponse;
 import com.br.proposta.validacoes.ApiErroException;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+
 @RestController
 @RequestMapping("/viagem")
 public class ViagemController {
@@ -32,14 +35,15 @@ public class ViagemController {
 	private CartaoRepository cartaoRepository;
 	private CartaoServiceFeign cartaoServiceFeign;
 
+	private CompositeMeterRegistry composite = new CompositeMeterRegistry();
+	private Counter compositeCounter = composite.counter("viagem");
+
 	public ViagemController(ViagemRepository viagemRepository, CartaoRepository cartaoRepository,
 			CartaoServiceFeign cartaoServiceFeign) {
 		this.viagemRepository = viagemRepository;
 		this.cartaoRepository = cartaoRepository;
 		this.cartaoServiceFeign = cartaoServiceFeign;
 	}
-
-
 
 	@Transactional
 	@PostMapping
@@ -53,17 +57,12 @@ public class ViagemController {
 			return ResponseEntity.unprocessableEntity().build();
 
 		Viagem viagem = new Viagem(cartao, viagemRequest, request.getRemoteAddr(), request.getHeader("User-Agent"));
-		
-		try {
-			AvisoViagemRequest avisoViagemRequest = new AvisoViagemRequest(viagem.getDestino(), viagem.getDataTermino());
-			RespostaCartao avisos = cartaoServiceFeign.avisos(id, avisoViagemRequest);
-		}
-		catch (Exception e) {
-			throw new ApiErroException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
-		}		
-		
-		viagemRepository.save(viagem);
 
+		AvisoViagemRequest avisoViagemRequest = new AvisoViagemRequest(viagem.getDestino(), viagem.getDataTermino());
+		RespostaCartao avisos = cartaoServiceFeign.avisos(id, avisoViagemRequest);
+
+		viagemRepository.save(viagem);
+		compositeCounter.increment();
 		return ResponseEntity.ok(new ViagemResponse(viagem));
 	}
 
