@@ -15,20 +15,19 @@ import org.hibernate.validator.constraints.ConstraintComposition;
 import org.hibernate.validator.constraints.br.CNPJ;
 import org.hibernate.validator.constraints.br.CPF;
 
-
-
 @ConstraintComposition(CompositionType.OR)
 @CNPJ
 @CPF
 @Documented
 @Constraint(validatedBy = {})
-@Target({ FIELD})
+@Target({ FIELD })
 @Retention(RUNTIME)
 public @interface CpfCnpj {
-	
+
 	String message() default "Documento invaildo.";
-	Class<?>[] groups() default { };
-	Class<? extends Payload>[] payload() default { };
-	
+
+	Class<?>[] groups() default {};
+
+	Class<? extends Payload>[] payload() default {};
 
 }

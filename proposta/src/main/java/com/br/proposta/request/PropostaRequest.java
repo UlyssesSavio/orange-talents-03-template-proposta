@@ -73,9 +73,9 @@ public class PropostaRequest {
 	}
 
 	public Proposta converter() {
-		
+
 		documento = documento.replaceAll("[^0-9]+", "");
-		
+
 		return new Proposta(documento, email, nome, endereco, salario);
 	}
 

@@ -4,9 +4,10 @@ public class CarteiraDigitalResponseFeign {
 
 	private String resultado;
 	private String id;
-	
-	public CarteiraDigitalResponseFeign() {}
-	
+
+	public CarteiraDigitalResponseFeign() {
+	}
+
 	public CarteiraDigitalResponseFeign(String resultado, String id) {
 		this.resultado = resultado;
 		this.id = id;
@@ -19,8 +20,5 @@ public class CarteiraDigitalResponseFeign {
 	public String getId() {
 		return id;
 	}
-	
-	
-	
-	
+
 }

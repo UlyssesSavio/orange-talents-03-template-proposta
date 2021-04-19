@@ -2,11 +2,10 @@ package com.br.proposta.response;
 
 public class RespostaCartao {
 
-	
-	
 	private String resultado;
-	
-	public RespostaCartao() {}
+
+	public RespostaCartao() {
+	}
 
 	public RespostaCartao(String resultado) {
 		this.resultado = resultado;
@@ -16,8 +15,4 @@ public class RespostaCartao {
 		return resultado;
 	}
 
-
-	
-	
-	
 }

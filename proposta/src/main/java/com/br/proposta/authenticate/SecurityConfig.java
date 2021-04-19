@@ -16,42 +16,34 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 
 @KeycloakConfiguration
 @Import(KeycloakSpringBootConfigResolver.class)
-public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter
-{
-    /**
-     * Registers the KeycloakAuthenticationProvider with the authentication manager.
-     */
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    	KeycloakAuthenticationProvider keycloakAuthenticationProvider =keycloakAuthenticationProvider();
-    	keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(new SimpleAuthorityMapper());
-    	
-    	
-        auth.authenticationProvider(keycloakAuthenticationProvider);
-    }
+public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
+	/**
+	 * Registers the KeycloakAuthenticationProvider with the authentication manager.
+	 */
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		KeycloakAuthenticationProvider keycloakAuthenticationProvider = keycloakAuthenticationProvider();
+		keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(new SimpleAuthorityMapper());
 
-    /**
-     * Defines the session authentication strategy.
-     */
-    @Bean
-    @Override
-    protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-        return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
-    }
+		auth.authenticationProvider(keycloakAuthenticationProvider);
+	}
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception
-    {
-        super.configure(http);
-        http
-        .csrf()
-        .disable()
-        .authorizeRequests()
-        .antMatchers("/proposta**").hasRole("admin")
-        .antMatchers("/biometria**").hasRole("admin")
-        .antMatchers("/cartao**").hasRole("admin")
-        .antMatchers("/viagem**").hasRole("admin")
+	/**
+	 * Defines the session authentication strategy.
+	 */
+	@Bean
+	@Override
+	protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+		return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
+	}
 
-        .anyRequest().permitAll() ;
-    }
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		super.configure(http);
+		http.csrf().disable().authorizeRequests().antMatchers("/proposta**").hasRole("admin")
+				.antMatchers("/biometria**").hasRole("admin").antMatchers("/cartao**").hasRole("admin")
+				.antMatchers("/viagem**").hasRole("admin")
+
+				.anyRequest().permitAll();
+	}
 }

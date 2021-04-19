@@ -6,7 +6,6 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,10 +24,11 @@ import com.br.proposta.repository.CartaoRepository;
 import com.br.proposta.request.CartaoBloqueioRequest;
 import com.br.proposta.response.CartaoBloqueioResponse;
 import com.br.proposta.response.RespostaCartao;
-import com.br.proposta.validacoes.ApiErroException;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
 
 @RestController
 @RequestMapping("/cartao")
@@ -38,21 +38,28 @@ public class CartaoController {
 	private CartaoBloqueadoRepository cartaoBloqueadoRepository;
 	private CartaoServiceFeign cartaoServiceFeign;
 
+	private Tracer tracer;
+
 	private CompositeMeterRegistry composite = new CompositeMeterRegistry();
 	private Counter compositeCounter = composite.counter("cartao");
 
 	public CartaoController(CartaoRepository cartaoRepository, CartaoBloqueadoRepository cartaoBloqueadoRepository,
-			CartaoServiceFeign cartaoServiceFeign) {
+			CartaoServiceFeign cartaoServiceFeign, Tracer tracer) {
+		super();
 		this.cartaoRepository = cartaoRepository;
 		this.cartaoBloqueadoRepository = cartaoBloqueadoRepository;
 		this.cartaoServiceFeign = cartaoServiceFeign;
+		this.tracer = tracer;
 	}
 
 	@Transactional
 	@PostMapping("/bloqueio")
-	private ResponseEntity<CartaoBloqueioResponse> cadastrar(@RequestParam String id, UriComponentsBuilder uriBuilder,
+	public ResponseEntity<CartaoBloqueioResponse> cadastrar(@RequestParam String id, UriComponentsBuilder uriBuilder,
 			HttpServletRequest request) {
 
+		Span span = tracer.activeSpan();
+		span.setTag("cartao.id", id);
+		span.log("iniciando bloqueio cartao");
 		if (!cartaoRepository.existsByNumeroCartao(id)) {
 			return ResponseEntity.notFound().build();
 		}
@@ -75,18 +82,19 @@ public class CartaoController {
 		URI uri = uriBuilder.path("/cartao/bloqueio/{id}").buildAndExpand(cartaoBloqueio.getId()).toUri();
 
 		compositeCounter.increment();
+		span.log("finalizando bloqueio cartao");
 		return ResponseEntity.created(uri).body(new CartaoBloqueioResponse(cartaoBloqueio));
 	}
 
 	@GetMapping("/bloqueio/{id}")
-	private ResponseEntity<CartaoBloqueioResponse> busca(@PathVariable Long id) {
+	public ResponseEntity<CartaoBloqueioResponse> busca(@PathVariable Long id) {
 		Optional<CartaoBloqueio> cartao = cartaoBloqueadoRepository.findById(id);
 		if (cartao.isPresent())
 			return ResponseEntity.ok(new CartaoBloqueioResponse(cartao.get()));
 		return ResponseEntity.notFound().build();
 	}
 
-	private void alteraEstadoCartao(StatusCartao status, Cartao cartao) {
+	public void alteraEstadoCartao(StatusCartao status, Cartao cartao) {
 		cartao = new Cartao(cartao, status);
 		cartaoRepository.save(cartao);
 	}

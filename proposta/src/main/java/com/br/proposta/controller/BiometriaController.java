@@ -27,7 +27,8 @@ import com.br.proposta.validacoes.ApiErroException;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
-
+import io.opentracing.Span;
+import io.opentracing.Tracer;
 
 @RestController
 @RequestMapping("/biometria")
@@ -35,33 +36,44 @@ public class BiometriaController {
 
 	private BiometriaRepository biometriaRepository;
 	private CartaoRepository cartaoRepository;
-	
+
+	private Tracer tracer;
+
 	private CompositeMeterRegistry composite = new CompositeMeterRegistry();
 	private Counter compositeCounter = composite.counter("biometria");
-	
-	public BiometriaController(BiometriaRepository biometriaRepository, CartaoRepository cartaoRepository) {
+
+	public BiometriaController(BiometriaRepository biometriaRepository, CartaoRepository cartaoRepository,
+			Tracer tracer) {
+		super();
 		this.biometriaRepository = biometriaRepository;
 		this.cartaoRepository = cartaoRepository;
+		this.tracer = tracer;
 	}
 
 	@Transactional
 	@PostMapping()
-	private ResponseEntity<BiometriaResponse> cadastrar(@RequestParam String id, @RequestBody @Valid BiometriaRequest biometriaRequest, UriComponentsBuilder uriBuilder) {
+	public ResponseEntity<BiometriaResponse> cadastrar(@RequestParam String id,
+			@RequestBody @Valid BiometriaRequest biometriaRequest, UriComponentsBuilder uriBuilder) {
+
+		Span span = tracer.activeSpan();
+		span.setTag("cartao.id", id);
+		span.log("iniciando cadastro biometria");
 		Cartao cartao = cartaoRepository.findByNumeroCartao(id);
-		if(cartao==null) throw new ApiErroException(HttpStatus.NOT_FOUND, "Cartao invalido");
-		
-		
+		if (cartao == null)
+			throw new ApiErroException(HttpStatus.NOT_FOUND, "Cartao invalido");
+
 		Biometria biometria = biometriaRequest.converter(cartao);
 		biometriaRepository.save(biometria);
-		
+
 		BiometriaResponse bioRes = new BiometriaResponse(biometria);
 		URI uri = uriBuilder.path("/biometria/{id}").buildAndExpand(biometria.getId()).toUri();
 		compositeCounter.increment();
+		span.log("finalizando cadastro biometria");
 		return ResponseEntity.created(uri).body(bioRes);
 	}
-	
+
 	@GetMapping("/{id}")
-	private ResponseEntity<BiometriaResponse> detalhar(@PathVariable Long id) {
+	public ResponseEntity<BiometriaResponse> detalhar(@PathVariable Long id) {
 
 		Optional<Biometria> biometria = biometriaRepository.findById(id);
 		if (biometria.isPresent())
@@ -69,6 +81,5 @@ public class BiometriaController {
 
 		return ResponseEntity.notFound().build();
 	}
-	
 
 }

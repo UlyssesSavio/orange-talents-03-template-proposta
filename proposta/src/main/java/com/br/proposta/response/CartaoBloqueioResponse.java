@@ -4,22 +4,15 @@ import java.time.LocalDateTime;
 
 import com.br.proposta.model.CartaoBloqueio;
 
-
 public class CartaoBloqueioResponse {
 
-	
-	
-	
 	private CartaoResponse cartao;
-	
 
 	private LocalDateTime dataBloqueio;
-	
+
 	private String ipCliente;
-	
+
 	private String userAgent;
-	
-	
 
 	public CartaoBloqueioResponse(CartaoBloqueio cartaoBloqueio) {
 		this.cartao = new CartaoResponse(cartaoBloqueio.getCartao());
@@ -43,7 +36,5 @@ public class CartaoBloqueioResponse {
 	public String getUserAgent() {
 		return userAgent;
 	}
-	
-	
-	
+
 }

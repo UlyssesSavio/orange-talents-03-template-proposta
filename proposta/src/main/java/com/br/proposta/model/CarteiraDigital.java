@@ -15,27 +15,28 @@ import com.br.proposta.enumerator.GatewayCarteira;
 
 @Entity
 public class CarteiraDigital {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@NotNull
 	@ManyToOne
 	private Cartao cartao;
-	
+
 	@Email
 	@NotNull
 	@Column(nullable = false)
 	private String email;
-	
+
 	@Enumerated(EnumType.STRING)
 	private GatewayCarteira gateway;
-	
+
 	private String idCarteiraDigital;
 
-	public CarteiraDigital() {}
-	
+	public CarteiraDigital() {
+	}
+
 	public CarteiraDigital(@NotNull Cartao cartao, @Email @NotNull String email, GatewayCarteira gateway) {
 		this.cartao = cartao;
 		this.email = email;
@@ -69,5 +70,4 @@ public class CarteiraDigital {
 		return idCarteiraDigital;
 	}
 
-	
 }

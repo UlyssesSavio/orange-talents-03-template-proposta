@@ -7,13 +7,15 @@ public class CarteiraDigitalResponse {
 
 	private String email;
 	private GatewayCarteira carteira;
-	
-	public CarteiraDigitalResponse() {}
-	
+
+	public CarteiraDigitalResponse() {
+	}
+
 	public CarteiraDigitalResponse(CarteiraDigital carteiraDigital) {
 		this.email = carteiraDigital.getEmail();
 		this.carteira = carteiraDigital.getGateway();
 	}
+
 	public String getEmail() {
 		return email;
 	}
@@ -21,10 +23,5 @@ public class CarteiraDigitalResponse {
 	public GatewayCarteira getCarteira() {
 		return carteira;
 	}
-	
-	
-	
-	
-	
-	
+
 }

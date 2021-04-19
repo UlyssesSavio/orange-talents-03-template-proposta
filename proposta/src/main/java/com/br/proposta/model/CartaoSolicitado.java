@@ -1,11 +1,12 @@
 package com.br.proposta.model;
 
 public class CartaoSolicitado {
-	
+
 	private String id;
 
-	public CartaoSolicitado() {}
-	
+	public CartaoSolicitado() {
+	}
+
 	public CartaoSolicitado(String id) {
 		this.id = id;
 	}
@@ -17,6 +18,5 @@ public class CartaoSolicitado {
 	public Cartao toCartao() {
 		return new Cartao(id);
 	}
-	
 
 }

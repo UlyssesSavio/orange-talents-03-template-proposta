@@ -3,21 +3,19 @@ package com.br.proposta.response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-
-
 import com.br.proposta.model.Viagem;
 
 public class ViagemResponse {
-	
-	
-	private String destino;	
+
+	private String destino;
 	private LocalDate dataTermino;
 	private LocalDateTime instanteAviso;
 	private String ipCliente;
 	private String userAgent;
-	
-	public ViagemResponse() {}
-	
+
+	public ViagemResponse() {
+	}
+
 	public ViagemResponse(Viagem viagem) {
 		this.destino = viagem.getDestino();
 		this.dataTermino = viagem.getDataTermino();
@@ -45,9 +43,5 @@ public class ViagemResponse {
 	public String getUserAgent() {
 		return userAgent;
 	}
-	
-	
 
-	
-	
 }

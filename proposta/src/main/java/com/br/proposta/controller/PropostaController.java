@@ -4,7 +4,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,6 +34,8 @@ import com.br.proposta.validacoes.ApiErroException;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
 
 @RestController
 @RequestMapping("/proposta")
@@ -41,22 +45,30 @@ public class PropostaController {
 	private CartaoRepository cartaoRepository;
 	private SolicitaRestricaoCartaoFeign solicitaRestricaoCartaoFeign;
 	private CartaoServiceFeign cartaoServiceFeign;
-	
+
 	private CompositeMeterRegistry composite = new CompositeMeterRegistry();
 	private Counter compositeCounter = composite.counter("proposta");
 
+	private Tracer tracer;
+
 	public PropostaController(PropostaRepository propostaRepository, CartaoRepository cartaoRepository,
-			SolicitaRestricaoCartaoFeign solicitaRestricaoCartaoFeign, CartaoServiceFeign cartaoServiceFeign) {
+			SolicitaRestricaoCartaoFeign solicitaRestricaoCartaoFeign, CartaoServiceFeign cartaoServiceFeign,
+			Tracer tracer) {
+		super();
 		this.propostaRepository = propostaRepository;
 		this.cartaoRepository = cartaoRepository;
 		this.solicitaRestricaoCartaoFeign = solicitaRestricaoCartaoFeign;
 		this.cartaoServiceFeign = cartaoServiceFeign;
+		this.tracer = tracer;
 	}
 
 	@PostMapping
-	private ResponseEntity<PropostaResponse> cadastrar(@RequestBody @Valid PropostaRequest propostaRequest,
+	public ResponseEntity<PropostaResponse> cadastrar(@RequestBody @Valid PropostaRequest propostaRequest,
 			UriComponentsBuilder uriBuilder) {
 
+		Span span = tracer.activeSpan();
+		span.setTag("user.email", propostaRequest.getEmail());
+		span.log("iniciando cadastro proposta");
 		Proposta proposta = propostaRequest.converter();
 
 		Optional<Proposta> existe = propostaRepository.findByDocumento(proposta.getDocumento());
@@ -66,17 +78,17 @@ public class PropostaController {
 		propostaRepository.save(proposta);
 		proposta = validaRestricao(proposta);
 		propostaRepository.save(proposta);
-	
+
 		URI uri = uriBuilder.path("/proposta/{id}").buildAndExpand(proposta.getId()).toUri();
 
 		compositeCounter.increment();
-		
+		span.log("finalizando cadastro proposta");
 		return ResponseEntity.created(uri).body(new PropostaResponse(proposta));
 	}
 
 	// Metodo get de retorno de proposta
 	@GetMapping("/{id}")
-	private ResponseEntity<PropostaResponse> detalhar(@PathVariable Long id) {
+	public ResponseEntity<PropostaResponse> detalhar(@PathVariable Long id) {
 
 		Optional<Proposta> proposta = propostaRepository.findById(id);
 		if (proposta.isPresent())
@@ -85,7 +97,7 @@ public class PropostaController {
 		return ResponseEntity.notFound().build();
 	}
 
-	private Proposta validaRestricao(Proposta proposta) {
+	public Proposta validaRestricao(Proposta proposta) {
 
 		SolicitaRestricaoCartaoRequest cartaoRequest = new SolicitaRestricaoCartaoRequest(proposta.getDocumento(),
 				proposta.getNome(), proposta.getId() + "");
@@ -103,16 +115,21 @@ public class PropostaController {
 		return proposta;
 	}
 
+	@Transactional
 	@Scheduled(fixedDelay = 5000)
-	private void verificaCartaoPeriodicamente() {
-		List<Proposta> propostasNaoLegiveis = propostaRepository.findAllByStatusAndCartao(StatusProposta.ELEGIVEL, null);
+	public void verificaCartaoPeriodicamente() {
+		List<Proposta> propostasNaoLegiveis = propostaRepository.findAllByStatusAndCartao(StatusProposta.ELEGIVEL,
+				null);
 		propostasNaoLegiveis.forEach(proposta -> validaProposta(proposta));
 	}
 
-
-	private void validaProposta(Proposta pro) {
+	public void validaProposta(Proposta pro) {
 
 		try {
+			Span span = tracer.activeSpan();
+			span.log("iniciando valida proposta");
+
+			span.setTag("user.email", pro.getEmail());
 
 			CartaoSolicitado cartaoS = cartaoServiceFeign.findByIdProposta(pro.getId());
 			Cartao cartao = cartaoS.toCartao();
@@ -122,6 +139,7 @@ public class PropostaController {
 			pro.adicionaCartaoValido(cartao);
 
 			propostaRepository.save(pro);
+			span.log("terminando valida proposta");
 		} catch (ApiErroException e) {
 		}
 

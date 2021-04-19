@@ -4,17 +4,15 @@ import org.springframework.http.HttpStatus;
 
 public class ApiErroException extends RuntimeException {
 
-    private final HttpStatus httpStatus;
+	private final HttpStatus httpStatus;
 
-    private final String reason;
+	private final String reason;
 
-    public ApiErroException(HttpStatus httpStatus, String reason) {
-        super(reason);
-        this.httpStatus = httpStatus;
-        this.reason = reason;
-    }
-    
-  
+	public ApiErroException(HttpStatus httpStatus, String reason) {
+		super(reason);
+		this.httpStatus = httpStatus;
+		this.reason = reason;
+	}
 
 	public HttpStatus getHttpStatus() {
 		return httpStatus;
@@ -23,6 +21,5 @@ public class ApiErroException extends RuntimeException {
 	public String getReason() {
 		return reason;
 	}
-
 
 }

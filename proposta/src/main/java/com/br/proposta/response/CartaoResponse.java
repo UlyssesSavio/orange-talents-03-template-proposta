@@ -3,7 +3,6 @@ package com.br.proposta.response;
 import com.br.proposta.model.Cartao;
 
 public class CartaoResponse {
-	
 
 	private String numeroCartao;
 
@@ -19,6 +18,4 @@ public class CartaoResponse {
 		return numeroCartao;
 	}
 
-	
-	
 }

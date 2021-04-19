@@ -24,33 +24,32 @@ public class Viagem {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@ManyToOne
 	private Cartao cartao;
-	
+
 	@NotNull
 	@NotBlank
 	@Column(nullable = false)
 	private String destino;
-	
+
 	@NotNull
 	@Column(nullable = false)
 	@Future
 	private LocalDate dataTermino;
 	@CreationTimestamp
 	private LocalDateTime instanteAviso;
-	
+
 	@NotNull
 	@Column(nullable = false)
 	private String ipCliente;
-	
+
 	@NotNull
 	@Column(nullable = false)
 	private String userAgent;
-	
-	public Viagem() {}
 
-
+	public Viagem() {
+	}
 
 	public Viagem(Cartao cartao, @NotNull @NotBlank String destino, @NotNull LocalDate dataTermino,
 			@NotNull String ipCliente, @NotNull String userAgent) {
@@ -61,8 +60,6 @@ public class Viagem {
 		this.userAgent = userAgent;
 	}
 
-
-
 	public Viagem(Cartao cartao, @Valid ViagemRequest viagemRequest, String remoteAddr, String header) {
 		this.cartao = cartao;
 		this.destino = viagemRequest.getDestino();
@@ -70,8 +67,6 @@ public class Viagem {
 		this.ipCliente = remoteAddr;
 		this.userAgent = header;
 	}
-
-
 
 	public Long getId() {
 		return id;
@@ -100,7 +95,5 @@ public class Viagem {
 	public String getUserAgent() {
 		return userAgent;
 	}
-	
-	
-	
+
 }

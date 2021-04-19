@@ -15,37 +15,33 @@ import org.hibernate.annotations.CreationTimestamp;
 @Entity
 public class CartaoBloqueio {
 
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@NotNull
 	@ManyToOne
 	private Cartao cartao;
-	
+
 	@CreationTimestamp
 	private LocalDateTime dataBloqueio;
-	
+
 	@NotNull
 	@Column(nullable = false)
 	private String ipCliente;
-	
+
 	@NotNull
 	@Column(nullable = false)
 	private String userAgent;
-	
-	public CartaoBloqueio(){}
 
-
+	public CartaoBloqueio() {
+	}
 
 	public CartaoBloqueio(@NotNull Cartao cartao, @NotNull String ipCliente, @NotNull String userAgent) {
 		this.cartao = cartao;
 		this.ipCliente = ipCliente;
 		this.userAgent = userAgent;
 	}
-
-
 
 	public Long getId() {
 		return id;
@@ -66,9 +62,5 @@ public class CartaoBloqueio {
 	public String getUserAgent() {
 		return userAgent;
 	}
-	
-	
-	
-	
-	
+
 }

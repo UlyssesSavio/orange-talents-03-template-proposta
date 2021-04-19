@@ -69,8 +69,6 @@ services:
       DB_DATABASE: keycloak
       DB_USER: keycloak
       DB_PASSWORD: password
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: Pa55w0rd
       POSTGRES_PORT_5432_TCP_ADDR: 127.0.0.1
       KEYCLOAK_FRONTEND_URL: http://keycloak:8080/auth
 
@@ -196,6 +194,7 @@ services:
       ENDERECO_RESTRICAO: analise
       ENDERECO_CARTAO: contas
       KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080/auth
+      OPENTRACING_JAEGER_HTTP_SENDER_URL: http://jaeger:14268/api/traces
 volumes:
   grafana-volume:
   prometheus-volume:

@@ -26,6 +26,8 @@ import com.br.proposta.validacoes.ApiErroException;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
 
 @RestController
 @RequestMapping("/carteira")
@@ -38,17 +40,26 @@ public class CarteiraDigitalController {
 	private CompositeMeterRegistry composite = new CompositeMeterRegistry();
 	private Counter compositeCounter = composite.counter("carteira");
 
+	private Tracer tracer;
+
 	public CarteiraDigitalController(CarteiraDigitalRepository carteiraDigitalRepository,
-			CartaoRepository cartaoRepository, CartaoServiceFeign cartaoServiceFeign) {
+			CartaoRepository cartaoRepository, CartaoServiceFeign cartaoServiceFeign, Tracer tracer) {
+		super();
 		this.carteiraDigitalRepository = carteiraDigitalRepository;
 		this.cartaoRepository = cartaoRepository;
 		this.cartaoServiceFeign = cartaoServiceFeign;
+		this.tracer = tracer;
 	}
 
 	@Transactional
 	@PostMapping()
-	private ResponseEntity<CarteiraDigitalResponse> cadastrar(@RequestParam String id,
+	public ResponseEntity<CarteiraDigitalResponse> cadastrar(@RequestParam String id,
 			@RequestBody @Valid CarteiraDigitalRequest carteiraDigitalRequest, UriComponentsBuilder uriBuilder) {
+
+		Span span = tracer.activeSpan();
+		span.setTag("cartao.id", id);
+
+		span.log("iniciando cadastro carteira digital");
 
 		Cartao cartao = cartaoRepository.findByNumeroCartao(id);
 		if (cartao == null)
@@ -65,6 +76,7 @@ public class CarteiraDigitalController {
 
 		compositeCounter.increment();
 		URI uri = uriBuilder.path("/carteira/{id}").buildAndExpand(carteira.getId()).toUri();
+		span.log("finalizando cadastro carteira digital");
 
 		return ResponseEntity.created(uri).body(new CarteiraDigitalResponse(carteira));
 	}

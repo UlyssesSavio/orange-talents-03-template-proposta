@@ -13,29 +13,25 @@ import com.br.proposta.enumerator.StatusCartao;
 
 @Entity
 public class Cartao {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-	
+
 	@NotBlank
 	@Column(nullable = false)
 	private String numeroCartao;
-	
+
 	@Enumerated(EnumType.STRING)
 	private StatusCartao status;
 
+	public Cartao() {
+	}
 
-	public Cartao() {}
-	
 	public Cartao(@NotBlank String numeroCartao) {
 		this.numeroCartao = numeroCartao;
 		this.status = StatusCartao.ATIVO;
 	}
-	
-	
-
 
 	public Cartao(Cartao cartao, StatusCartao status) {
 		this.id = cartao.getId();
@@ -47,7 +43,6 @@ public class Cartao {
 		return id;
 	}
 
-
 	public String getNumeroCartao() {
 		return numeroCartao;
 	}
@@ -55,5 +50,5 @@ public class Cartao {
 	public StatusCartao getStatus() {
 		return status;
 	}
-	
+
 }

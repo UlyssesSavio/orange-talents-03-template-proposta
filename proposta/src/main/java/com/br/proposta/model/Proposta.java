@@ -49,7 +49,7 @@ public class Proposta {
 	@PositiveOrZero
 	@Column(nullable = false)
 	private BigDecimal salario;
-	
+
 	@Enumerated(EnumType.STRING)
 	private StatusProposta status;
 	@OneToOne
@@ -96,16 +96,15 @@ public class Proposta {
 	public StatusProposta getStatus() {
 		return status;
 	}
-	
+
 	public void adicionaCartaoValido(Cartao cartao) {
 		this.cartao = cartao;
 		cartaoElegivel();
 	}
-	
+
 	public void cartaoElegivel() {
 		this.status = StatusProposta.ELEGIVEL;
 
 	}
-	
 
 }
