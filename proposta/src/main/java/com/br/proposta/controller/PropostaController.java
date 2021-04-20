@@ -9,9 +9,15 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
+import org.bouncycastle.crypto.generators.BCrypt;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.encrypt.Encryptors;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
+import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,6 +49,9 @@ import io.opentracing.Tracer;
 @RestController
 @RequestMapping("/proposta")
 public class PropostaController {
+
+	@Value(value = "${documento.secret}")
+	String salt;
 
 	private PropostaRepository propostaRepository;
 	private CartaoRepository cartaoRepository;
@@ -78,13 +87,17 @@ public class PropostaController {
 		span.setTag("user.email", propostaRequest.getEmail());
 		span.log("iniciando cadastro proposta");
 		Proposta proposta = propostaRequest.converter();
-
-		Optional<Proposta> existe = propostaRepository.findByDocumento(proposta.getDocumento());
-		if (existe.isPresent())
-			throw new ApiErroException(HttpStatus.UNPROCESSABLE_ENTITY, "Ja existe uma proposta para esse documento.");
-
+		
+		Optional<List<Proposta>> existe = propostaRepository.findAllByEmail(proposta.getEmail());
+		if (existe.isPresent()){
+			for(Proposta pro : existe.get()) {
+				if(decripta(pro.getDocumento()).equals(proposta.getDocumento()))
+					throw new ApiErroException(HttpStatus.UNPROCESSABLE_ENTITY, "Ja existe uma proposta para esse documento.");
+			}
+		}
 		propostaRepository.save(proposta);
 		proposta = validaRestricao(proposta);
+		proposta = new Proposta(proposta, encripta(proposta.getDocumento()));
 		propostaRepository.save(proposta);
 
 		URI uri = uriBuilder.path("/proposta/{id}").buildAndExpand(proposta.getId()).toUri();
@@ -92,6 +105,20 @@ public class PropostaController {
 		compositeCounter.increment();
 		span.log("finalizando cadastro proposta");
 		return ResponseEntity.created(uri).body(new PropostaResponse(proposta));
+	}
+
+	public String encripta(String texto) {
+
+		TextEncryptor encode = Encryptors.text("secreto", salt);
+		return encode.encrypt(texto);
+
+	}
+
+	public String decripta(String texto) {
+
+		TextEncryptor encode = Encryptors.text("secreto", salt);
+		return encode.decrypt(texto);
+
 	}
 
 	// Metodo get de retorno de proposta

@@ -16,6 +16,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import com.br.proposta.anotacoes.CpfCnpj;
 import com.br.proposta.enumerator.StatusProposta;
 
@@ -27,7 +29,8 @@ public class Proposta {
 	private Long id;
 
 	@NotBlank
-	@CpfCnpj
+	//Comentei a anotacao de validacao de cpf/cnpj no model para conseguir salvar o documento encriptado
+	//@CpfCnpj
 	@Column(nullable = false)
 	private String documento;
 
@@ -67,7 +70,22 @@ public class Proposta {
 		this.endereco = endereco;
 		this.salario = salario;
 		this.status = StatusProposta.NAO_ELEGIVEL;
+		
 	}
+	
+	
+
+	public Proposta(Proposta pro, String encripta) {
+		this.id = pro.getId();
+		this.documento = encripta;
+		this.email = pro.getEmail();
+		this.nome = pro.getNome();
+		this.endereco = pro.getEndereco();
+		this.salario = pro.getSalario();
+		this.status = pro.getStatus();
+	}
+
+	
 
 	public Long getId() {
 		return id;

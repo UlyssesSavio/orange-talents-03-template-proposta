@@ -15,4 +15,6 @@ public interface PropostaRepository extends JpaRepository<Proposta, Long> {
 
 	List<Proposta> findAllByStatusAndCartao(StatusProposta naoElegivel, Cartao cartao);
 
+	Optional<List<Proposta>> findAllByEmail(String email);
+
 }

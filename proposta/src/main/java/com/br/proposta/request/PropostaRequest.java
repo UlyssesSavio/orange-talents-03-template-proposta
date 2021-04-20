@@ -15,6 +15,7 @@ import com.br.proposta.model.Proposta;
 public class PropostaRequest {
 
 	@NotBlank
+	//mas ainda sim, continua validando na borda
 	@CpfCnpj
 	@Column(nullable = false)
 	private String documento;
