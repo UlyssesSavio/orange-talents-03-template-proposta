@@ -1,6 +1,8 @@
 package com.br.proposta.controller;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +28,8 @@ import com.br.proposta.response.CartaoBloqueioResponse;
 import com.br.proposta.response.RespostaCartao;
 
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 
@@ -40,16 +43,22 @@ public class CartaoController {
 
 	private Tracer tracer;
 
-	private CompositeMeterRegistry composite = new CompositeMeterRegistry();
-	private Counter compositeCounter = composite.counter("cartao");
+	private final MeterRegistry meterRegistry;
+	private Counter compositeCounter;
 
 	public CartaoController(CartaoRepository cartaoRepository, CartaoBloqueadoRepository cartaoBloqueadoRepository,
-			CartaoServiceFeign cartaoServiceFeign, Tracer tracer) {
+			CartaoServiceFeign cartaoServiceFeign, Tracer tracer, MeterRegistry meterRegistry) {
 		super();
 		this.cartaoRepository = cartaoRepository;
 		this.cartaoBloqueadoRepository = cartaoBloqueadoRepository;
 		this.cartaoServiceFeign = cartaoServiceFeign;
 		this.tracer = tracer;
+		this.meterRegistry = meterRegistry;
+
+		Collection<Tag> tags = new ArrayList<>();
+		tags.add(Tag.of("cartao", "bloqueio"));
+
+		compositeCounter = this.meterRegistry.counter("cartao", tags);
 	}
 
 	@Transactional

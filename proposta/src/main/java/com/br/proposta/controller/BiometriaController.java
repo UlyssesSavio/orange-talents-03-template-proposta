@@ -1,6 +1,8 @@
 package com.br.proposta.controller;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -26,7 +28,8 @@ import com.br.proposta.response.BiometriaResponse;
 import com.br.proposta.validacoes.ApiErroException;
 
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 
@@ -39,15 +42,21 @@ public class BiometriaController {
 
 	private Tracer tracer;
 
-	private CompositeMeterRegistry composite = new CompositeMeterRegistry();
-	private Counter compositeCounter = composite.counter("biometria");
+	private final MeterRegistry meterRegistry;
+	private Counter compositeCounter;
 
 	public BiometriaController(BiometriaRepository biometriaRepository, CartaoRepository cartaoRepository,
-			Tracer tracer) {
+			Tracer tracer, MeterRegistry meterRegistry) {
 		super();
 		this.biometriaRepository = biometriaRepository;
 		this.cartaoRepository = cartaoRepository;
 		this.tracer = tracer;
+		this.meterRegistry = meterRegistry;
+
+		Collection<Tag> tags = new ArrayList<>();
+		tags.add(Tag.of("biometria", "cadastro"));
+		compositeCounter = this.meterRegistry.counter("biometria", tags);
+
 	}
 
 	@Transactional

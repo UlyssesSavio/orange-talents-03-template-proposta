@@ -130,6 +130,7 @@ services:
     networks:
       - rede-spring
     volumes:
+     - ./prometheus.yml:/etc/prometheus/prometheus.yml
      - prometheus-volume:/etc/prometheus/
     ports:
       - "9090:9090"
@@ -175,7 +176,6 @@ services:
     networks:
       - rede-spring
     depends_on:
-      - db
       - grafana
       - prometheus
       - jaeger
@@ -185,6 +185,7 @@ services:
       - analise
       - transacoes
       - postgres
+      - db
       - keycloak
 
     environment:

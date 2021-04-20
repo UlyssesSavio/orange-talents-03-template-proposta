@@ -1,6 +1,8 @@
 package com.br.proposta.controller;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
@@ -25,7 +27,8 @@ import com.br.proposta.response.CarteiraDigitalResponseFeign;
 import com.br.proposta.validacoes.ApiErroException;
 
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 
@@ -37,18 +40,25 @@ public class CarteiraDigitalController {
 	private CartaoRepository cartaoRepository;
 	private CartaoServiceFeign cartaoServiceFeign;
 
-	private CompositeMeterRegistry composite = new CompositeMeterRegistry();
-	private Counter compositeCounter = composite.counter("carteira");
+	private final MeterRegistry meterRegistry;
+	private Counter compositeCounter;
 
 	private Tracer tracer;
 
 	public CarteiraDigitalController(CarteiraDigitalRepository carteiraDigitalRepository,
-			CartaoRepository cartaoRepository, CartaoServiceFeign cartaoServiceFeign, Tracer tracer) {
+			CartaoRepository cartaoRepository, CartaoServiceFeign cartaoServiceFeign, MeterRegistry meterRegistry,
+			Tracer tracer) {
 		super();
 		this.carteiraDigitalRepository = carteiraDigitalRepository;
 		this.cartaoRepository = cartaoRepository;
 		this.cartaoServiceFeign = cartaoServiceFeign;
+		this.meterRegistry = meterRegistry;
 		this.tracer = tracer;
+
+		Collection<Tag> tags = new ArrayList<>();
+		tags.add(Tag.of("carteira", "cadastro"));
+
+		compositeCounter = this.meterRegistry.counter("carteira", tags);
 	}
 
 	@Transactional

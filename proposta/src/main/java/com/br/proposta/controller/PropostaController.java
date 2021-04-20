@@ -1,6 +1,8 @@
 package com.br.proposta.controller;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +35,8 @@ import com.br.proposta.response.PropostaResponse;
 import com.br.proposta.validacoes.ApiErroException;
 
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 
@@ -46,20 +49,25 @@ public class PropostaController {
 	private SolicitaRestricaoCartaoFeign solicitaRestricaoCartaoFeign;
 	private CartaoServiceFeign cartaoServiceFeign;
 
-	private CompositeMeterRegistry composite = new CompositeMeterRegistry();
-	private Counter compositeCounter = composite.counter("proposta");
-
+	private final MeterRegistry meterRegistry;
+	private Counter compositeCounter;
 	private Tracer tracer;
 
 	public PropostaController(PropostaRepository propostaRepository, CartaoRepository cartaoRepository,
 			SolicitaRestricaoCartaoFeign solicitaRestricaoCartaoFeign, CartaoServiceFeign cartaoServiceFeign,
-			Tracer tracer) {
+			MeterRegistry meterRegistry, Tracer tracer) {
 		super();
 		this.propostaRepository = propostaRepository;
 		this.cartaoRepository = cartaoRepository;
 		this.solicitaRestricaoCartaoFeign = solicitaRestricaoCartaoFeign;
 		this.cartaoServiceFeign = cartaoServiceFeign;
+		this.meterRegistry = meterRegistry;
 		this.tracer = tracer;
+
+		Collection<Tag> tags = new ArrayList<>();
+		tags.add(Tag.of("proposta", "cadastro"));
+
+		compositeCounter = this.meterRegistry.counter("proposta", tags);
 	}
 
 	@PostMapping
