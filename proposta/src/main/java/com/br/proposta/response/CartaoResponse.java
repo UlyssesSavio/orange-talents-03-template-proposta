@@ -11,7 +11,7 @@ public class CartaoResponse {
 	}
 
 	public CartaoResponse(Cartao cartao) {
-		this.numeroCartao = cartao.getNumeroCartao();
+		this.numeroCartao = cartao.getId();
 	}
 
 	public String getNumeroCartao() {

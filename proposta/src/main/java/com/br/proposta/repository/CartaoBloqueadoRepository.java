@@ -9,4 +9,6 @@ public interface CartaoBloqueadoRepository extends JpaRepository<CartaoBloqueio,
 
 	boolean existsByCartao(Cartao cartao);
 
+
+
 }

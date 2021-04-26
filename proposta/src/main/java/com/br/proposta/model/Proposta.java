@@ -2,6 +2,7 @@ package com.br.proposta.model;
 
 import java.math.BigDecimal;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -16,8 +17,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import com.br.proposta.anotacoes.CpfCnpj;
 import com.br.proposta.enumerator.StatusProposta;
 
@@ -29,7 +28,6 @@ public class Proposta {
 	private Long id;
 
 	@NotBlank
-	//Comentei a anotacao de validacao de cpf/cnpj no model para conseguir salvar o documento encriptado
 	//@CpfCnpj
 	@Column(nullable = false)
 	private String documento;
@@ -55,7 +53,7 @@ public class Proposta {
 
 	@Enumerated(EnumType.STRING)
 	private StatusProposta status;
-	@OneToOne
+	@OneToOne()
 	private Cartao cartao;
 
 	public Proposta() {
@@ -124,5 +122,10 @@ public class Proposta {
 		this.status = StatusProposta.ELEGIVEL;
 
 	}
+
+	public Cartao getCartao() {
+		return cartao;
+	}
+	
 
 }

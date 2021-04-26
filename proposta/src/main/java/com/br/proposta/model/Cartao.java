@@ -1,13 +1,11 @@
 package com.br.proposta.model;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.NotBlank;
 
 import com.br.proposta.enumerator.StatusCartao;
 
@@ -15,12 +13,7 @@ import com.br.proposta.enumerator.StatusCartao;
 public class Cartao {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-
-	@NotBlank
-	@Column(nullable = false)
-	private String numeroCartao;
+	private String id;
 
 	@Enumerated(EnumType.STRING)
 	private StatusCartao status;
@@ -28,23 +21,22 @@ public class Cartao {
 	public Cartao() {
 	}
 
-	public Cartao(@NotBlank String numeroCartao) {
-		this.numeroCartao = numeroCartao;
-		this.status = StatusCartao.ATIVO;
+	public Cartao(StatusCartao status) {
+		this.status = status;
 	}
 
 	public Cartao(Cartao cartao, StatusCartao status) {
 		this.id = cartao.getId();
-		this.numeroCartao = cartao.getNumeroCartao();
 		this.status = status;
 	}
 
-	public Long getId() {
-		return id;
+	public Cartao(String id) {
+		this.id = id;
+		this.status = StatusCartao.ATIVO;
 	}
 
-	public String getNumeroCartao() {
-		return numeroCartao;
+	public String getId() {
+		return id;
 	}
 
 	public StatusCartao getStatus() {

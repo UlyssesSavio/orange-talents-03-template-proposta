@@ -3,16 +3,17 @@ package com.br.proposta.controller;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -62,8 +63,8 @@ public class CarteiraDigitalController {
 	}
 
 	@Transactional
-	@PostMapping()
-	public ResponseEntity<CarteiraDigitalResponse> cadastrar(@RequestParam String id,
+	@PostMapping("/{id}")
+	public ResponseEntity<CarteiraDigitalResponse> cadastrar(@PathVariable(value = "id") String id,
 			@RequestBody @Valid CarteiraDigitalRequest carteiraDigitalRequest, UriComponentsBuilder uriBuilder) {
 
 		Span span = tracer.activeSpan();
@@ -71,9 +72,10 @@ public class CarteiraDigitalController {
 
 		span.log("iniciando cadastro carteira digital");
 
-		Cartao cartao = cartaoRepository.findByNumeroCartao(id);
-		if (cartao == null)
+		Optional<Cartao> cartaoOp = cartaoRepository.findById(id);
+		if (!cartaoOp.isPresent())
 			throw new ApiErroException(HttpStatus.NOT_FOUND, "Cartao invalido");
+		Cartao cartao = cartaoOp.get();
 		CarteiraDigital carteira = carteiraDigitalRequest.converter(cartao);
 		if (carteiraDigitalRepository.existsByCartaoAndGateway(cartao, carteira.getGateway()))
 			throw new ApiErroException(HttpStatus.UNPROCESSABLE_ENTITY,

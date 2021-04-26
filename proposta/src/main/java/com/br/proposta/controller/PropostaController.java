@@ -9,15 +9,12 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
-import org.bouncycastle.crypto.generators.BCrypt;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
-import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -95,6 +92,7 @@ public class PropostaController {
 					throw new ApiErroException(HttpStatus.UNPROCESSABLE_ENTITY, "Ja existe uma proposta para esse documento.");
 			}
 		}
+		
 		propostaRepository.save(proposta);
 		proposta = validaRestricao(proposta);
 		proposta = new Proposta(proposta, encripta(proposta.getDocumento()));
@@ -131,7 +129,6 @@ public class PropostaController {
 
 		return ResponseEntity.notFound().build();
 	}
-
 	public Proposta validaRestricao(Proposta proposta) {
 
 		SolicitaRestricaoCartaoRequest cartaoRequest = new SolicitaRestricaoCartaoRequest(proposta.getDocumento(),
@@ -149,8 +146,8 @@ public class PropostaController {
 		proposta.cartaoElegivel();
 		return proposta;
 	}
-
-	@Transactional
+	
+	
 	@Scheduled(fixedDelay = 5000)
 	public void verificaCartaoPeriodicamente() {
 		List<Proposta> propostasNaoLegiveis = propostaRepository.findAllByStatusAndCartao(StatusProposta.ELEGIVEL,
@@ -169,11 +166,12 @@ public class PropostaController {
 			CartaoSolicitado cartaoS = cartaoServiceFeign.findByIdProposta(pro.getId());
 			Cartao cartao = cartaoS.toCartao();
 
+			
 			cartaoRepository.save(cartao);
-
 			pro.adicionaCartaoValido(cartao);
-
 			propostaRepository.save(pro);
+			
+			
 			span.log("terminando valida proposta");
 		} catch (ApiErroException e) {
 		}

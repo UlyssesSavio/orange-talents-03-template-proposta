@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -62,22 +61,24 @@ public class CartaoController {
 	}
 
 	@Transactional
-	@PostMapping("/bloqueio")
-	public ResponseEntity<CartaoBloqueioResponse> cadastrar(@RequestParam String id, UriComponentsBuilder uriBuilder,
+	@PostMapping("/{id}/bloqueio")
+	public ResponseEntity<CartaoBloqueioResponse> cadastrar(@PathVariable(value = "id") String id, UriComponentsBuilder uriBuilder,
 			HttpServletRequest request) {
 
 		Span span = tracer.activeSpan();
 		span.setTag("cartao.id", id);
 		span.log("iniciando bloqueio cartao");
-		if (!cartaoRepository.existsByNumeroCartao(id)) {
+		Optional<Cartao> cartaoOp = cartaoRepository.findById(id);
+		if (!cartaoOp.isPresent()){
 			return ResponseEntity.notFound().build();
-		}
+		}		
 
-		Cartao cartao = cartaoRepository.findByNumeroCartao(id);
-
+		Cartao cartao = cartaoOp.get();
+		
 		if (cartaoBloqueadoRepository.existsByCartao(cartao)) {
 			return ResponseEntity.unprocessableEntity().build();
 		}
+		
 
 		CartaoBloqueio cartaoBloqueio = new CartaoBloqueio(cartao, request.getRemoteAddr(),
 				request.getHeader("User-Agent"));
@@ -86,17 +87,18 @@ public class CartaoController {
 		RespostaCartao bloqueia = cartaoServiceFeign.bloqueia(id, cartaoBloqueioRequest);
 
 		alteraEstadoCartao(StatusCartao.BLOQUEADO, cartao);
+		cartaoRepository.save(cartao);
 		cartaoBloqueadoRepository.save(cartaoBloqueio);
 
-		URI uri = uriBuilder.path("/cartao/bloqueio/{id}").buildAndExpand(cartaoBloqueio.getId()).toUri();
+		URI uri = uriBuilder.path("/cartao/{id}/bloqueio").buildAndExpand(cartaoBloqueio.getId()).toUri();
 
 		compositeCounter.increment();
 		span.log("finalizando bloqueio cartao");
 		return ResponseEntity.created(uri).body(new CartaoBloqueioResponse(cartaoBloqueio));
 	}
 
-	@GetMapping("/bloqueio/{id}")
-	public ResponseEntity<CartaoBloqueioResponse> busca(@PathVariable Long id) {
+	@GetMapping("/{id}/bloqueio")
+	public ResponseEntity<CartaoBloqueioResponse> busca(@PathVariable(value="id") Long id) {
 		Optional<CartaoBloqueio> cartao = cartaoBloqueadoRepository.findById(id);
 		if (cartao.isPresent())
 			return ResponseEntity.ok(new CartaoBloqueioResponse(cartao.get()));

@@ -40,10 +40,20 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		super.configure(http);
-		http.csrf().disable().authorizeRequests().antMatchers("/proposta**").hasRole("admin")
-				.antMatchers("/biometria**").hasRole("admin").antMatchers("/cartao**").hasRole("admin")
-				.antMatchers("/viagem**").hasRole("admin")
+		http.csrf().disable()
+		.authorizeRequests()
+		.antMatchers("/proposta**").hasRole("admin")
+		
+		.antMatchers("/biometria**").hasRole("admin")
+		.antMatchers("/cartao**").hasRole("admin")
+		.antMatchers("/viagem**").hasRole("admin")
+		
+		//.antMatchers("/proposta**").permitAll()
+		//.antMatchers("/biometria**").permitAll()
+		//.antMatchers("/cartao**").permitAll()
+		//.antMatchers("/viagem**").permitAll()
 
+		
 				.anyRequest().permitAll();
 	}
 }
