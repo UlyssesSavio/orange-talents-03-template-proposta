@@ -9,8 +9,7 @@ import com.br.proposta.request.SolicitaRestricaoCartaoRequest;
 
 import io.opentracing.contrib.spring.cloud.feign.FeignTracingAutoConfiguration;
 
-@FeignClient(name = "solicitaRestricaoCartaoFeign", url = "http://${endereco.restricao}:9999/", configuration = {
-		FeignTracingAutoConfiguration.class })
+@FeignClient(name = "solicitaRestricaoCartaoFeign", url = "http://${endereco.restricao}:9999/")
 public interface SolicitaRestricaoCartaoFeign {
 
 	@RequestMapping(method = RequestMethod.POST, value = "/api/solicitacao", consumes = "application/json")

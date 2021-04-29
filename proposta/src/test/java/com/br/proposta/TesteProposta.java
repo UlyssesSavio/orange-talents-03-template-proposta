@@ -2,10 +2,9 @@ package com.br.proposta;
 
 import java.math.BigDecimal;
 
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,15 +17,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.br.proposta.interfaces.SolicitaRestricaoCartaoFeign;
-import com.br.proposta.model.Proposta;
-import com.br.proposta.model.SolicitaRestricaoCartao;
 import com.br.proposta.repository.CartaoRepository;
 import com.br.proposta.request.PropostaRequest;
-import com.br.proposta.request.SolicitaRestricaoCartaoRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,6 +40,9 @@ public class TesteProposta {
 	
 	@MockBean
 	SolicitaRestricaoCartaoFeign solicitaRestricaoCartaoFeign;
+	
+	 
+	
 
 	@Test
 	public void deveriaCriarProposta() throws Exception{

@@ -124,10 +124,8 @@ public class PropostaController {
 	public ResponseEntity<PropostaResponse> detalhar(@PathVariable Long id) {
 
 		Optional<Proposta> proposta = propostaRepository.findById(id);
-		if (proposta.isPresent())
-			return ResponseEntity.ok(new PropostaResponse(proposta.get()));
-
-		return ResponseEntity.notFound().build();
+		Optional<ResponseEntity<PropostaResponse>> resposta =proposta.map(pro ->ResponseEntity.ok(new PropostaResponse(pro))); 
+		return resposta.orElseGet(() -> ResponseEntity.notFound().build());
 	}
 	public Proposta validaRestricao(Proposta proposta) {
 

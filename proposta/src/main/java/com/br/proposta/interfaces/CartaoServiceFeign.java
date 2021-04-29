@@ -15,8 +15,7 @@ import com.br.proposta.response.RespostaCartao;
 
 import io.opentracing.contrib.spring.cloud.feign.FeignTracingAutoConfiguration;
 
-@FeignClient(name = "CartaoServiceFeign", url = "http://${endereco.cartao}:8888/", configuration = {
-		FeignTracingAutoConfiguration.class })
+@FeignClient(name = "CartaoServiceFeign", url = "http://${endereco.cartao}:8888/")
 public interface CartaoServiceFeign {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/api/cartoes")

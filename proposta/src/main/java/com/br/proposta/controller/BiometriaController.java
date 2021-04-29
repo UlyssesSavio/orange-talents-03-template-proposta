@@ -86,10 +86,9 @@ public class BiometriaController {
 	public ResponseEntity<BiometriaResponse> detalhar(@PathVariable Long id) {
 
 		Optional<Biometria> biometria = biometriaRepository.findById(id);
-		if (biometria.isPresent())
-			return ResponseEntity.ok(new BiometriaResponse(biometria.get()));
-
-		return ResponseEntity.notFound().build();
+		Optional<ResponseEntity<BiometriaResponse>> retorno = biometria.map(bio -> ResponseEntity.ok(new BiometriaResponse(biometria.get())));
+		return retorno.orElseGet(() -> ResponseEntity.notFound().build());
+	
 	}
 
 }

@@ -100,9 +100,9 @@ public class CartaoController {
 	@GetMapping("/{id}/bloqueio")
 	public ResponseEntity<CartaoBloqueioResponse> busca(@PathVariable(value="id") Long id) {
 		Optional<CartaoBloqueio> cartao = cartaoBloqueadoRepository.findById(id);
-		if (cartao.isPresent())
-			return ResponseEntity.ok(new CartaoBloqueioResponse(cartao.get()));
-		return ResponseEntity.notFound().build();
+		Optional<ResponseEntity<CartaoBloqueioResponse>> retorno = cartao.map(cart -> ResponseEntity.ok(new CartaoBloqueioResponse(cart)));
+		return retorno.orElseGet(() -> ResponseEntity.notFound().build());
+		
 	}
 
 	public void alteraEstadoCartao(StatusCartao status, Cartao cartao) {
