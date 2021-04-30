@@ -88,14 +88,14 @@ public class PropostaController {
 		Optional<List<Proposta>> existe = propostaRepository.findAllByEmail(proposta.getEmail());
 		if (existe.isPresent()){
 			for(Proposta pro : existe.get()) {
-				if(decripta(pro.getDocumento()).equals(proposta.getDocumento()))
+				if(decripta(pro.getEmail(), pro.getDocumento()).equals(proposta.getDocumento()))
 					throw new ApiErroException(HttpStatus.UNPROCESSABLE_ENTITY, "Ja existe uma proposta para esse documento.");
 			}
 		}
 		
 		propostaRepository.save(proposta);
 		proposta = validaRestricao(proposta);
-		proposta = new Proposta(proposta, encripta(proposta.getDocumento()));
+		proposta = new Proposta(proposta, encripta(proposta.getEmail(), proposta.getDocumento()));
 		propostaRepository.save(proposta);
 
 		URI uri = uriBuilder.path("/proposta/{id}").buildAndExpand(proposta.getId()).toUri();
@@ -105,16 +105,16 @@ public class PropostaController {
 		return ResponseEntity.created(uri).body(new PropostaResponse(proposta));
 	}
 
-	public String encripta(String texto) {
+	public String encripta(String secreto, String texto) {
 
-		TextEncryptor encode = Encryptors.text("secreto", salt);
+		TextEncryptor encode = Encryptors.text(secreto, salt);
 		return encode.encrypt(texto);
 
 	}
 
-	public String decripta(String texto) {
+	public String decripta(String secreto, String texto) {
 
-		TextEncryptor encode = Encryptors.text("secreto", salt);
+		TextEncryptor encode = Encryptors.text(secreto, salt);
 		return encode.decrypt(texto);
 
 	}
